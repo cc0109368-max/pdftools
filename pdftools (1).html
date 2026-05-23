@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Tools – Free Online PDF Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #f5f4f0; color: #1a1a1a; min-height: 100vh; }
+
+  /* NAV */
+  nav { background: #fff; border-bottom: 1px solid #e5e3dc; padding: 0 2rem; display: flex; align-items: center; height: 58px; gap: 2rem; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 1.35rem; font-weight: 600; color: #e03c2a; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+  .logo span { color: #1a1a1a; }
+  .nav-links { display: flex; gap: 0; }
+  .nav-links a { font-size: 0.82rem; font-weight: 500; color: #444; text-decoration: none; padding: 0.4rem 0.9rem; border-radius: 6px; transition: background 0.15s, color 0.15s; }
+  .nav-links a:hover { background: #f0ede6; color: #1a1a1a; }
+  .nav-links a.active { color: #e03c2a; }
+
+
+
+  /* CATEGORY TABS */
+  .tabs { background: #fff; border-bottom: 1px solid #e5e3dc; padding: 0 2rem; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 0.85rem 1.1rem; font-size: 0.82rem; font-weight: 500; color: #666; cursor: pointer; white-space: nowrap; border-bottom: 2.5px solid transparent; transition: all 0.15s; user-select: none; }
+  .tab:hover { color: #1a1a1a; }
+  .tab.active { color: #e03c2a; border-bottom-color: #e03c2a; }
+
+  /* TOOLS GRID */
+  main { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  .section-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 1.2rem; padding-left: 2px; }
+  .tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-bottom: 3rem; }
+  .tool-card { background: #fff; border: 1px solid #eae8e2; border-radius: 12px; padding: 1.4rem 1.2rem 1.3rem; cursor: pointer; transition: box-shadow 0.18s, transform 0.18s, border-color 0.18s; text-decoration: none; color: inherit; display: block; }
+  .tool-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.09); transform: translateY(-2px); border-color: #d5d0c6; }
+  .tool-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.9rem; font-size: 1.35rem; }
+  .tool-name { font-size: 0.92rem; font-weight: 600; color: #1a1a1a; margin-bottom: 0.35rem; }
+  .tool-desc { font-size: 0.78rem; color: #888; line-height: 1.5; }
+
+  /* Icon colors */
+  .ic-red { background: #fff0ee; }
+  .ic-orange { background: #fff4ed; }
+  .ic-green { background: #edfaf3; }
+  .ic-blue { background: #edf4ff; }
+  .ic-purple { background: #f4edff; }
+  .ic-yellow { background: #fffbea; }
+  .ic-teal { background: #edfafa; }
+  .ic-pink { background: #fff0f6; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 16px; width: 90%; max-width: 560px; padding: 2.2rem 2rem 2rem; position: relative; animation: slideup 0.2s ease; }
+  @keyframes slideup { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-close { position: absolute; top: 1.1rem; right: 1.1rem; background: #f0ede6; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 1rem; color: #555; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: #e5e0d8; }
+  .modal-icon { width: 54px; height: 54px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 1rem; }
+  .modal h2 { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.4rem; }
+  .modal p { font-size: 0.88rem; color: #666; margin-bottom: 1.6rem; line-height: 1.6; }
+  .drop-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .drop-zone:hover, .drop-zone.drag { border-color: #e03c2a; background: #fff8f7; }
+  .drop-zone svg { width: 36px; height: 36px; color: #bbb; margin-bottom: 0.7rem; }
+  .drop-zone-text { font-size: 0.88rem; color: #888; }
+  .drop-zone-text strong { color: #e03c2a; }
+  .btn-primary { display: inline-block; background: #e03c2a; color: #fff; border: none; border-radius: 8px; padding: 0.7rem 1.6rem; font-size: 0.92rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .btn-primary:hover { background: #c73320; }
+  .file-input { display: none; }
+  .file-list { margin-top: 1rem; display: flex; flex-direction: column; gap: 8px; }
+  .file-item { background: #f8f7f3; border: 1px solid #eae8e2; border-radius: 8px; padding: 0.65rem 0.9rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.83rem; }
+  .file-item span { color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 300px; }
+  .file-item button { background: none; border: none; cursor: pointer; color: #bbb; font-size: 1rem; padding: 0 2px; }
+  .file-item button:hover { color: #e03c2a; }
+  .modal-actions { margin-top: 1.4rem; display: flex; gap: 10px; }
+  .btn-secondary { background: #f0ede6; color: #444; border: none; border-radius: 8px; padding: 0.7rem 1.2rem; font-size: 0.88rem; font-weight: 500; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+  .btn-secondary:hover { background: #e8e4db; }
+  .status-msg { margin-top: 1rem; font-size: 0.83rem; color: #888; text-align: center; min-height: 20px; }
+
+  /* FOOTER */
+  footer { background: #1a1a1a; color: #aaa; text-align: center; padding: 1.5rem; font-size: 0.8rem; }
+  footer span { color: #e03c2a; }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.6rem; }
+    .tools-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    nav { gap: 1rem; padding: 0 1rem; }
+    main { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="#">❤ <span>PDF</span>Tools</a>
+  <div class="nav-links">
+    <a href="#" class="active" onclick="filterTools('all')">All Tools</a>
+    <a href="#" onclick="filterTools('organize')">Organize</a>
+    <a href="#" onclick="filterTools('convert')">Convert</a>
+    <a href="#" onclick="filterTools('edit')">Edit</a>
+    <a href="#" onclick="filterTools('security')">Security</a>
+  </div>
+</nav>
+
+
+
+<div class="tabs">
+  <div class="tab active" onclick="filterTools('all', this)">All</div>
+  <div class="tab" onclick="filterTools('organize', this)">Organize PDF</div>
+  <div class="tab" onclick="filterTools('optimize', this)">Optimize PDF</div>
+  <div class="tab" onclick="filterTools('convertto', this)">Convert to PDF</div>
+  <div class="tab" onclick="filterTools('convertfrom', this)">Convert from PDF</div>
+  <div class="tab" onclick="filterTools('edit', this)">Edit PDF</div>
+  <div class="tab" onclick="filterTools('security', this)">PDF Security</div>
+</div>
+
+<main>
+  <div id="tools-container"></div>
+</main>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="toolModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-icon" id="modalIcon"></div>
+    <h2 id="modalTitle">Tool Name</h2>
+    <p id="modalDesc">Description here.</p>
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()" ondragover="dragover(event)" ondragleave="dragleave(event)" ondrop="dropped(event)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0L8 8m4-4l4 4"/><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <div class="drop-zone-text"><strong>Click to select</strong> or drag &amp; drop file here</div>
+    </div>
+    <input type="file" class="file-input" id="fileInput" multiple onchange="filesSelected(event)" />
+    <div class="file-list" id="fileList"></div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="actionBtn" onclick="processFiles()">Process</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+    </div>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+</div>
+
+<footer>All tools run in your browser. Your files are never uploaded to any server. &nbsp;Made with <span>❤</span></footer>
+
+<script>
+const tools = [
+  { id:'merge', name:'Merge PDF', desc:'Combine multiple PDFs into one file.', icon:'📑', color:'ic-red', category:'organize', accept:'.pdf', multiple:true, action:'Merge PDFs' },
+  { id:'split', name:'Split PDF', desc:'Separate one page or a whole set into independent files.', icon:'✂️', color:'ic-orange', category:'organize', accept:'.pdf', multiple:false, action:'Split PDF' },
+  { id:'remove', name:'Remove Pages', desc:'Delete specific pages from a PDF.', icon:'🗑️', color:'ic-red', category:'organize', accept:'.pdf', multiple:false, action:'Remove Pages' },
+  { id:'extract', name:'Extract Pages', desc:'Extract specific pages into a new PDF.', icon:'📄', color:'ic-orange', category:'organize', accept:'.pdf', multiple:false, action:'Extract Pages' },
+  { id:'organize', name:'Organize PDF', desc:'Sort, rotate or rearrange pages as you like.', icon:'📋', color:'ic-teal', category:'organize', accept:'.pdf', multiple:false, action:'Organize PDF' },
+  { id:'scan', name:'Scan to PDF', desc:'Convert scanned images into a PDF.', icon:'📷', color:'ic-blue', category:'organize', accept:'image/*', multiple:true, action:'Convert to PDF' },
+
+  { id:'compress', name:'Compress PDF', desc:'Reduce file size while keeping quality.', icon:'📦', color:'ic-green', category:'optimize', accept:'.pdf', multiple:false, action:'Compress PDF' },
+  { id:'repair', name:'Repair PDF', desc:'Fix corrupted or damaged PDF files.', icon:'🔧', color:'ic-orange', category:'optimize', accept:'.pdf', multiple:false, action:'Repair PDF' },
+  { id:'ocr', name:'OCR PDF', desc:'Make scanned PDFs searchable and selectable.', icon:'🔍', color:'ic-blue', category:'optimize', accept:'.pdf', multiple:false, action:'Run OCR' },
+
+  { id:'jpg2pdf', name:'JPG to PDF', desc:'Convert JPG images to PDF easily.', icon:'🖼️', color:'ic-yellow', category:'convertto', accept:'image/jpeg,image/jpg', multiple:true, action:'Convert to PDF' },
+  { id:'word2pdf', name:'Word to PDF', desc:'Convert DOC and DOCX files to PDF.', icon:'📝', color:'ic-blue', category:'convertto', accept:'.doc,.docx', multiple:false, action:'Convert to PDF' },
+  { id:'ppt2pdf', name:'PowerPoint to PDF', desc:'Convert PPT and PPTX slides to PDF.', icon:'📊', color:'ic-orange', category:'convertto', accept:'.ppt,.pptx', multiple:false, action:'Convert to PDF' },
+  { id:'excel2pdf', name:'Excel to PDF', desc:'Convert XLSX spreadsheets to PDF.', icon:'📈', color:'ic-green', category:'convertto', accept:'.xls,.xlsx', multiple:false, action:'Convert to PDF' },
+  { id:'html2pdf', name:'HTML to PDF', desc:'Convert web pages and HTML files to PDF.', icon:'🌐', color:'ic-teal', category:'convertto', accept:'.html,.htm', multiple:false, action:'Convert to PDF' },
+
+  { id:'pdf2jpg', name:'PDF to JPG', desc:'Extract pages as high-quality JPG images.', icon:'🖼️', color:'ic-yellow', category:'convertfrom', accept:'.pdf', multiple:false, action:'Convert to JPG' },
+  { id:'pdf2word', name:'PDF to Word', desc:'Convert PDF to editable DOCX documents.', icon:'📝', color:'ic-blue', category:'convertfrom', accept:'.pdf', multiple:false, action:'Convert to Word' },
+  { id:'pdf2ppt', name:'PDF to PowerPoint', desc:'Turn PDF pages into editable PPT slides.', icon:'📊', color:'ic-orange', category:'convertfrom', accept:'.pdf', multiple:false, action:'Convert to PPT' },
+  { id:'pdf2excel', name:'PDF to Excel', desc:'Pull tables from PDFs into spreadsheets.', icon:'📈', color:'ic-green', category:'convertfrom', accept:'.pdf', multiple:false, action:'Convert to Excel' },
+  { id:'pdf2pdfa', name:'PDF to PDF/A', desc:'Convert PDF to archive-ready PDF/A format.', icon:'🗂️', color:'ic-purple', category:'convertfrom', accept:'.pdf', multiple:false, action:'Convert to PDF/A' },
+
+  { id:'rotate', name:'Rotate PDF', desc:'Rotate pages to the correct orientation.', icon:'🔄', color:'ic-teal', category:'edit', accept:'.pdf', multiple:false, action:'Rotate PDF' },
+  { id:'pagenum', name:'Add Page Numbers', desc:'Insert page numbers on your PDF.', icon:'🔢', color:'ic-blue', category:'edit', accept:'.pdf', multiple:false, action:'Add Numbers' },
+  { id:'watermark', name:'Add Watermark', desc:'Stamp custom text or image watermarks.', icon:'💧', color:'ic-teal', category:'edit', accept:'.pdf', multiple:false, action:'Add Watermark' },
+  { id:'crop', name:'Crop PDF', desc:'Cut margins or crop pages to size.', icon:'✂️', color:'ic-orange', category:'edit', accept:'.pdf', multiple:false, action:'Crop PDF' },
+  { id:'editpdf', name:'Edit PDF', desc:'Add text, shapes or freehand to any PDF.', icon:'✏️', color:'ic-purple', category:'edit', accept:'.pdf', multiple:false, action:'Edit PDF' },
+  { id:'forms', name:'PDF Forms', desc:'Fill, create and export PDF forms.', icon:'📋', color:'ic-pink', category:'edit', accept:'.pdf', multiple:false, action:'Open Form' },
+
+  { id:'unlock', name:'Unlock PDF', desc:'Remove passwords from protected PDFs.', icon:'🔓', color:'ic-green', category:'security', accept:'.pdf', multiple:false, action:'Unlock PDF' },
+  { id:'protect', name:'Protect PDF', desc:'Add a password to keep your PDF secure.', icon:'🔒', color:'ic-red', category:'security', accept:'.pdf', multiple:false, action:'Protect PDF' },
+  { id:'sign', name:'Sign PDF', desc:'Add digital signatures to any PDF.', icon:'✍️', color:'ic-blue', category:'security', accept:'.pdf', multiple:false, action:'Sign PDF' },
+  { id:'redact', name:'Redact PDF', desc:'Permanently black out sensitive content.', icon:'⬛', color:'ic-red', category:'security', accept:'.pdf', multiple:false, action:'Redact PDF' },
+];
+
+const categories = {
+  organize: 'Organize PDF',
+  optimize: 'Optimize PDF',
+  convertto: 'Convert to PDF',
+  convertfrom: 'Convert from PDF',
+  edit: 'Edit PDF',
+  security: 'PDF Security',
+};
+
+let currentTool = null;
+let selectedFiles = [];
+
+function renderTools(list) {
+  const container = document.getElementById('tools-container');
+  if (list.length === 0) { container.innerHTML = '<p style="color:#aaa;text-align:center;padding:3rem">No tools found.</p>'; return; }
+  const grouped = {};
+  list.forEach(t => { if (!grouped[t.category]) grouped[t.category] = []; grouped[t.category].push(t); });
+  container.innerHTML = Object.entries(grouped).map(([cat, tools]) => `
+    <div class="section-title">${categories[cat] || cat}</div>
+    <div class="tools-grid">
+      ${tools.map(t => `
+        <div class="tool-card" onclick="openTool('${t.id}')">
+          <div class="tool-icon ${t.color}">${t.icon}</div>
+          <div class="tool-name">${t.name}</div>
+          <div class="tool-desc">${t.desc}</div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function filterTools(cat, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  const list = cat === 'all' ? tools : tools.filter(t => t.category === cat);
+  renderTools(list);
+}
+
+function searchTools() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  if (!q) { renderTools(tools); return; }
+  renderTools(tools.filter(t => t.name.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q)));
+}
+
+function openTool(id) {
+  currentTool = tools.find(t => t.id === id);
+  if (!currentTool) return;
+  selectedFiles = [];
+  document.getElementById('modalIcon').className = 'modal-icon ' + currentTool.color;
+  document.getElementById('modalIcon').textContent = currentTool.icon;
+  document.getElementById('modalTitle').textContent = currentTool.name;
+  document.getElementById('modalDesc').textContent = currentTool.desc;
+  document.getElementById('actionBtn').textContent = currentTool.action;
+  document.getElementById('fileList').innerHTML = '';
+  document.getElementById('statusMsg').textContent = '';
+  document.getElementById('fileInput').accept = currentTool.accept;
+  document.getElementById('fileInput').multiple = currentTool.multiple;
+  document.getElementById('toolModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('toolModal').classList.remove('open');
+  currentTool = null; selectedFiles = [];
+}
+
+document.getElementById('toolModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function dragover(e) { e.preventDefault(); document.getElementById('dropZone').classList.add('drag'); }
+function dragleave() { document.getElementById('dropZone').classList.remove('drag'); }
+function dropped(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  addFiles(Array.from(e.dataTransfer.files));
+}
+function filesSelected(e) { addFiles(Array.from(e.target.files)); e.target.value = ''; }
+
+function addFiles(newFiles) {
+  if (!currentTool.multiple) selectedFiles = [newFiles[0]];
+  else selectedFiles = [...selectedFiles, ...newFiles];
+  renderFileList();
+}
+
+function renderFileList() {
+  const fl = document.getElementById('fileList');
+  fl.innerHTML = selectedFiles.map((f, i) => `
+    <div class="file-item">
+      <span>📄 ${f.name}</span>
+      <button onclick="removeFile(${i})">✕</button>
+    </div>`).join('');
+}
+
+function removeFile(i) { selectedFiles.splice(i, 1); renderFileList(); }
+
+function processFiles() {
+  if (selectedFiles.length === 0) { document.getElementById('statusMsg').textContent = 'Please select at least one file.'; return; }
+  const btn = document.getElementById('actionBtn');
+  const status = document.getElementById('statusMsg');
+  btn.disabled = true;
+  btn.textContent = 'Processing…';
+  status.textContent = 'Working on your files…';
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = currentTool.action;
+    status.innerHTML = '✅ Done! <strong>Download ready.</strong> (Demo – no file is actually processed.)';
+  }, 1800);
+}
+
+renderTools(tools);
+</script>
+</body>
+</html>
